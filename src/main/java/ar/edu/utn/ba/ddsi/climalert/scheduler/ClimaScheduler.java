@@ -22,10 +22,13 @@ public class ClimaScheduler {
         climaService.consultarYGuardarClima();
     }
 
-    @Scheduled(fixedRate =60000)
+    @Scheduled(fixedRate = 60000)
     public void analizarClima() {
         climaService.obtenerUltimoClima()
-                .filter(Clima::requiereAlerta)
-                .ifPresent(emailService::enviarAlerta);
+                .filter(Clima::alertaPendiente)
+                .ifPresent(clima -> {
+                    emailService.enviarAlerta(clima);
+                    clima.marcarAlertaEnviada();
+                });
     }
 }
